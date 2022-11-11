@@ -1,4 +1,5 @@
 import torch
+import spacy
 from collections import Counter
 
 class DocumentPreprocessor:
@@ -8,7 +9,7 @@ class DocumentPreprocessor:
         self.max_len = max_len
         self.PAD = "<PAD>"
         self.UNKNOWN = "<UNKNOWN>"
-
+        self.nlp = spacy.load("en_core_web_sm")
     
     # (1)
     def build_vocab(self, X, Y):
@@ -21,7 +22,7 @@ class DocumentPreprocessor:
         """
         
         # use Counter to collect all unique words with its frequency
-        freq = Counter(t for x in X for t in self.tokenizer(x))
+        freq = Counter(t for x in X for t in self.tokenizer(x, self.nlp))
 
         # create a list to store all unique words
         if self.max_voc_size:
@@ -75,9 +76,9 @@ class DocumentPreprocessor:
         tokens = []
         for x in X:
           if self.max_len:
-            tokens.append([self.vocX.get(t,1) for t in self.tokenizer(x)[:self.max_len] ])
+            tokens.append([self.vocX.get(t,1) for t in self.tokenizer(x, self.nlp)[:self.max_len] ])
           else:
-            tokens.append([self.vocX.get(t,1) for t in self.tokenizer(x)]) 
+            tokens.append([self.vocX.get(t,1) for t in self.tokenizer(x, self.nlp)]) 
 
         # Use a list to store the encoded labels
         labels = [ self.vocY[y] for y in Y]

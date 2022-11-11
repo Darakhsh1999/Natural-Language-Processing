@@ -1,13 +1,11 @@
 import os.path
 import pandas as pd
-import spacy
 import torch
 import time
 import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
-from spacy.tokens import token
 from collections import defaultdict
 from tqdm import tqdm
 from torch import nn, optim
@@ -16,6 +14,9 @@ from sklearn.metrics import accuracy_score
 from CBoWParameters import CBoWParameters
 from DocumentPreprocessor import DocumentPreprocessor
 from CBoWRepresentation import CBoWRepresentation
+
+# Params
+plot_figures = False
 
 # Check data
 train_dir = r'Data\brexit_train.tsv'
@@ -26,15 +27,10 @@ cond_file = (not cond_train) or (not cond_test) # Check if data is present
 if cond_file:
     print("Couldnt detect train and test data.")
     exit(1)
-else:
-    print("Data files already exist")
 
 # Load in train data
 train_corpus = pd.read_csv(train_dir, sep='\t', header=0, names=['label', 'text'])
 Xtrain, Xval, Ytrain, Yval = train_test_split(train_corpus.text, train_corpus.label, test_size=0.2, random_state=0)
-
-
-nlp = spacy.load("en_core_web_sm")
 
 def tokenize(text, nlp, lowercase=True):
 
@@ -220,32 +216,32 @@ val_loss = training_history['val_loss']
 train_acc = training_history['train_acc']
 val_acc = training_history['val_acc']
 
+if plot_figures:
+    ## Plot training metrics
+    # Loss
+    epochs = np.arange(param.n_epochs)
+    plt.figure(figsize = (15,5)) 
+    plt.plot(epochs, train_loss)
+    plt.plot(epochs, val_loss)
+    plt.xlabel("Epoch")
+    plt.ylabel("Cross Entropy Loss")
+    plt.xticks(epochs)
+    plt.legend(["Train", "Validation"])
+    plt.grid()
+    plt.title("Train loss", fontsize = 25)
+    plt.show()
 
-## Plot training metrics
-
-# Loss
-epochs = np.arange(param.n_epochs)
-plt.figure(figsize = (15,5)) 
-plt.plot(epochs, train_loss)
-plt.plot(epochs, val_loss)
-plt.xlabel("Epoch")
-plt.ylabel("Cross Entropy Loss")
-plt.xticks(epochs)
-plt.legend(["Train", "Validation"])
-plt.grid()
-plt.title("Training metrics", fontsize = 25)
-plt.show()
-
-## Accuracy
-plt.figure(figsize = (15,5)) 
-plt.plot(epochs, train_acc)
-plt.plot(epochs, val_acc)
-plt.xlabel("Epoch")
-plt.ylabel("Accuracy")
-plt.xticks(epochs)
-plt.legend(["Train", "Validation"])
-plt.grid()
-plt.show()
+    ## Accuracy
+    plt.figure(figsize = (15,5)) 
+    plt.plot(epochs, train_acc)
+    plt.plot(epochs, val_acc)
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.xticks(epochs)
+    plt.legend(["Train", "Validation"])
+    plt.grid()
+    plt.title("Train accuracy", fontsize = 25)
+    plt.show()
 
 ## Load in test data ##
 test_corpus = pd.read_csv(test_dir, sep='\t', header=0, names=['label', 'text'])
