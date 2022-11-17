@@ -1,8 +1,7 @@
 import time
 import nltk
-import sys
-import pandas as pd
 import numpy as np
+from tqdm import trange
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 from collections import Counter
@@ -102,7 +101,7 @@ class Gibbs():
     def Run(self, iterations):
         
         ''' Runs iterations of z updates on all worlds '''
-        for _ in range(iterations):
+        for _ in trange(iterations):
             for d_idx in range(self.n_docs):
                 for j_idx in range(self.words_per_doc[d_idx]):
                     self.UpdateZ(d_idx, j_idx)
@@ -173,27 +172,77 @@ class Gibbs():
         freqs = Counter()
 
         for d_idx in range(self.n_docs):
-                for j_idx in range(self.doc_word_counts[d_idx]):
+                for j_idx in range(self.words_per_doc[d_idx]):
                     if self.Z[d_idx][j_idx] == topic:
                         w_idx = self.tokens[d_idx][j_idx]
                         word = self.vocab[w_idx]
                         freqs[word] += 1
 
-        return([word for word,freq in freqs.most_common(most_common_x)])
+        return [word for word,freq in freqs.most_common(most_common_x)]
 
-    def CoherenceScores(self):
-        pass    
+    def CoherenceScores(self, M= 20):
+        
+        C = np.zeros(self.n_topics)
+        V = []
+        D1 = np.zeros((self.n_topics, M))
+        D2 = np.zeros((self.n_topics, M, M))
+
+        # List of most common words for each topic, shape (n_topics, M)
+        for topic_idx in range(self.n_topics):
+            V += [self.SimpleEval(topic_idx, M)]
+
+        # Store top words
+        self.top_words = V
+
+        # Calculate document and co-document frequency
+        for topic_idx in range(self.n_topics):
+            for out_idx in range(M):
+                
+                word_l_idx = self.vocab_hash.get(V[topic_idx][out_idx])
+                D1[topic_idx, out_idx] = np.count_nonzero(self.doc_word_counts[:, word_l_idx])
+
+                for in_idx in range(M):
+
+                    word_m_idx = self.vocab_hash.get(V[topic_idx][in_idx])
+                    mask_ml = (self.doc_word_counts[:, word_m_idx])*(self.doc_word_counts[:, word_l_idx])
+                    D2[topic_idx, out_idx, in_idx] = np.count_nonzero(mask_ml)
+
+        # Calculate coherence scores
+        for topic_idx in range(self.n_topics):
+            s = 0
+            for m in range(1,M):
+                for l in range(0, m-1):
+                    s += np.log10((1+D2[topic_idx, m, l]) / D1[topic_idx, l])
+            C[topic_idx] = s
+
+        return C
+
 
 if __name__ == '__main__':
 
-    t_start = time.time()
     n_docs = 1550 
+    n_topics = 10
+    alpha = 0.1
+    beta = 0.1
+    n_iterations = 100
+    M = 20
+
+    t1 = time.time()
     data = LoadData(n_docs)
-    gibbs = Gibbs(data, n_docs, 10, 10, 0.01, 0.01)
-    t_end = time.time()
-    t_tot = t_end - t_start
-    print("Load up time", t_tot)
-    t_before = time.time()
-    gibbs.Run(2)
-    t_after = time.time()
-    print("One iterations took", t_after - t_before)
+    gibbs = Gibbs(data, n_docs, n_topics, min_df= 10, alpha= alpha, beta= beta)
+    t2 = time.time()
+    gibbs.Run(n_iterations)
+    t3 = time.time()
+    C = gibbs.CoherenceScores(M= M)
+    t4 = time.time()
+
+    print(f"Total time: {t4-t1:.4f} s")
+    print(f"Load data: {t2-t1:.4f} s")
+    print(f"Run Gibbs: {t3-t2:.4f} s")
+    print(f"Coherence scores: {t4-t3:.4f} s")
+    print(20*'-')
+
+    for k in range(n_topics):
+        print(f"C = {C[k]:.4f}")
+        print(gibbs.top_words[k])
+        print(15*'=')
