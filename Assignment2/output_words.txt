@@ -1,0 +1,29 @@
+Average coherence C = -132.18659962477602 
+Parameters: K = 10, alpha = 0.1, beta = 0.1, iterations = 10, documents = 1550 
+C_0 = -139.9320: ['said' 'pct' 'year' 'trade' 'japan' 'prices' 'april' 'tonnes' '000' 'may'
+ 'price' 'official' 'government' 'last' 'export' '1987' 'market'
+ 'agriculture' 'wheat' 'would'] 
+C_1 = -136.3316: ['said' 'billion' 'bank' 'dlrs' 'dollar' 'trade' 'deficit' 'would'
+ 'government' 'west' 'year' 'interest' 'oil' 'growth' 'central' 'foreign'
+ 'economic' 'surplus' 'budget' 'rate'] 
+C_2 = -90.2703: ['vs' 'mln' '000' 'cts' 'net' 'dlrs' 'loss' 'shr' 'qtr' 'lt' 'profit'
+ 'revs' 'note' 'nine' 'mths' 'billion' '1986' 'year' 'sales' 'shrs'] 
+C_3 = -128.7581: ['said' 'lt' 'shares' 'company' 'stock' 'inc' 'dlrs' 'share' 'mln' 'pct'
+ 'group' 'offer' 'corp' 'common' 'ltd' 'co' 'agreement' 'acquisition'
+ 'stake' 'shareholders'] 
+C_4 = -127.6603: ['said' 'would' 'market' 'ec' 'rate' 'bank' 'one' 'rates' 'today' 'new'
+ 'week' 'day' 'money' 'could' 'japanese' 'cut' 'system' 'also' 'pct'
+ 'industry'] 
+C_5 = -138.7726: ['pct' 'year' 'mln' 'last' 'tonnes' '1986' 'month' '87' 'exports'
+ 'production' '1985' 'demand' '000' 'stocks' 'imports' '1987' 'report'
+ 'said' 'crop' 'rise'] 
+C_6 = -156.9531: ['said' 'dlrs' 'pct' 'lt' 'company' 'mln' 'inc' 'corp' 'first' 'year'
+ 'quarter' 'co' '1986' 'new' 'gold' 'companies' 'business' 'group'
+ 'chemical' 'three'] 
+C_7 = -146.1853: ['dlrs' 'mln' 'billion' 'cts' 'lt' 'oil' '000' 'company' 'crude' '50'
+ 'net' 'price' '19' 'barrel' 'inc' 'co' 'corp' 'per' '25' 'loan'] 
+C_8 = -114.5954: ['vs' 'mln' 'net' 'cts' '000' 'dlrs' 'shr' 'billion' 'qtr' 'lt' 'revs'
+ 'nine' 'loss' 'mths' '09' 'avg' '3rd' '87' 'shrs' 'profit'] 
+C_9 = -142.4071: ['said' 'oil' 'gulf' 'iran' 'united' 'last' 'would' 'could' 'iranian'
+ 'minister' 'meeting' 'accord' 'attack' 'opec' 'states' 'two' 'foreign'
+ 'german' 'traders' 'president'] 

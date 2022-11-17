@@ -1,5 +1,4 @@
 import time
-import nltk
 import numpy as np
 from tqdm import trange
 from nltk.corpus import stopwords
@@ -192,7 +191,7 @@ class Gibbs():
             V += [self.SimpleEval(topic_idx, M)]
 
         # Store top words
-        self.top_words = V
+        self.top_words = np.array(V)
 
         # Calculate document and co-document frequency
         for topic_idx in range(self.n_topics):
@@ -220,11 +219,12 @@ class Gibbs():
 
 if __name__ == '__main__':
 
+    # Parameters
     n_docs = 1550 
     n_topics = 10
     alpha = 0.1
     beta = 0.1
-    n_iterations = 100
+    n_iterations = 10
     M = 20
 
     t1 = time.time()
@@ -236,13 +236,14 @@ if __name__ == '__main__':
     C = gibbs.CoherenceScores(M= M)
     t4 = time.time()
 
-    print(f"Total time: {t4-t1:.4f} s")
-    print(f"Load data: {t2-t1:.4f} s")
-    print(f"Run Gibbs: {t3-t2:.4f} s")
-    print(f"Coherence scores: {t4-t3:.4f} s")
-    print(20*'-')
+    print(f"Total time: {t4-t1:.3f} s")
+    print(f"Load data: {t2-t1:.3f} s")
+    print(f"Run Gibbs: {t3-t2:.3f} s")
+    print(f"Coherence scores: {t4-t3:.3f} s")
 
-    for k in range(n_topics):
-        print(f"C = {C[k]:.4f}")
-        print(gibbs.top_words[k])
-        print(15*'=')
+    # Write to simple output file
+    with open('output_words.txt', 'w') as filehandle:
+        filehandle.write(f'Average coherence C = {C.mean()} \n')
+        filehandle.write(f'Parameters: K = {n_topics}, alpha = {alpha}, beta = {beta}, iterations = {n_iterations}, documents = {n_docs} \n')
+        for k, words in enumerate(gibbs.top_words):
+            filehandle.write(f'C_{k} = {C[k]:.4f}: {words} \n')
