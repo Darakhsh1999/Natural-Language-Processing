@@ -1,45 +1,77 @@
 import nltk
-from nltk.corpus import reuters
-from nltk.corpus import stopwords
+import pandas as pd
 import numpy as np
-
-#nltk.download('reuters')
-#nltk.download('stopwords')
-
+from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 from collections import Counter
-import pandas as pd
+from Auxiliary import LoadData
 
 
-# Note this implementation depends on all initial Z predictions to be 0
 class Gibbs():
-    def __init__(self, data, n_docs, n_topics, min_df=10, alpha= 0.01, beta =0.01):
+    def __init__(self, data, n_docs, n_topics, min_df= 10, alpha= 0.01, beta= 0.01):
 
+        # Simulation parameters
         self.alpha = alpha
         self.beta = beta
         self.n_topics = n_topics
         self.n_docs = n_docs
 
-        # Each word has to occur at least 10 times
-        self.vectorizer = CountVectorizer(stop_words=stopwords.words('english'), min_df=min_df) 
-            
-        tokenized_docs = self.vectorizer.fit_transform(data)
+        # Create vocabulary
+        self.data = data
+        self.vectorizer = CountVectorizer(stop_words= stopwords.words('english'), min_df= min_df) 
+        self.analyzer = self.vectorizer.build_analyzer() # seems to be the correct one to use
+        tokenized_docs = self.vectorizer.fit_transform(data) # Sparse matrix
         self.vocab = np.array(self.vectorizer.get_feature_names_out())
         self.vocab_len = len(self.vocab)
+        self.vocab_hash = dict(zip(self.vocab, np.arange(self.vocab_len))) # keys are word_tokens and values are word_index
 
-        self.doc_word_counts = tokenized_docs.toarray() # shape (nmb_docs x vocab_len)
-        self.word_counts = sum(self.doc_word_counts) # number of occurences of each word across all documents, len = voc_len
-        self.words_per_doc = [sum(self.doc_word_counts[i]) for i in range(self.n_docs)] # number of words in each document, len = nmb_docs
-        self.total_tokens = sum(self.word_counts)
-        self.Z = [np.zeros(s) for s in self.words_per_doc] # topic for every word in every document
-        self.word_hash = dict(zip(np.arange(self.vocab_len, self.vocab))) # keys are index and values are word token
+        # Token counts and latent variable Z
+        self.doc_word_counts = np.array(tokenized_docs.toarray()) # shape (nmb_docs x vocab_len)
+        self.word_counts = np.sum(self.doc_word_counts, axis= 0) # number of occurences of each word across all documents, len = voc_len
+        self.words_per_doc = np.sum(self.doc_word_counts, axis= 1) # number of words in each document, len = nmb_docs
+        self.total_tokens = sum(self.word_counts) # total tokens after processing
+        self.Z = [np.random.randint(0, self.n_topics+1, s) for s in self.words_per_doc] # random topic for every word in every document
 
-        # Row is document, column is topic and value is topic count
-        self.topic_freq = np.array([[self.words_per_doc[i]] + [0]*(self.n_topics-1) for i in range(self.n_docs)]) # shape = (nmb_docs x nmb_topics)
+        # Topic and Word counts
+        self.topic_freq = np.zeros((self.vocab_len, self.n_topics))
+        self.word_freq = np.zeros((self.vocab_len, self.n_topics))
+        self.tokens = self.InitializeTokens()
+        self.InitializeFrequencies()
+
+        self.SanityCheck()
+
+    def SanityCheck():
+        ''' Run assertions to check sanity and catch errors '''
+        pass
+
+
+
+    def InitializeTokens(self):
+        print(self.vocab_hash.items())
+        tokens = []
+        for d in range(self.n_docs):
+            d_tokens = []
+            for token in self.analyzer(self.data[d]):
+                if (self.vocab_hash.get(token) != None):
+                    d_tokens.append(self.vocab_hash.get(token))
+            tokens.append(d_tokens)
+            #d_list = [self.vocab_hash.get(token) for token in self.tokenizer(self.data[d]) if (self.vocab_hash.get(token) != None)]
+        return tokens  
+
+    def InitializeFrequencies(self):
+        
+        for d in range(self.n_docs):
+            for j in range(self.words_per_doc[d]):
+                topic_dj = self.Z[d][j]
+                self.topic_freq[d][topic_dj] += 1
 
         # Row is topic, colum is word and value is number of words with topic k
-        self.word_freq = np.array([[self.word_counts[i]] + [0]*(self.n_topics - 1) for i in range(self.vocab_len)]) # shape = (vocab_len x nmb_topics)
+        for d in range(self.n_docs):
+            for j in range(self.words_per_doc[d]):
 
+                v_idx = self.vocab_hash.get(self.tokens[d][j])
+                topic_dj = self.Z[d][j]
+                self.word_freq = np.array([[self.word_counts[i]] + [0]*(self.n_topics - 1) for i in range(self.vocab_len)]) # shape = (vocab_len x nmb_topics)
 
     def Run(self, iterations):
         
@@ -56,7 +88,7 @@ class Gibbs():
         """function to update topic for Z[d_idx][j_idx] according to collapsed Gibbs sampling"""
         old_topic = self.Z[d_idx][j_idx]
 
-        w_idx = self.get_w_idx(d_idx, j_idx)
+        w_idx = self.tokens[d_idx][j_idx]
 
         P = self.calc_p(d_idx, j_idx, w_idx)
 
@@ -71,16 +103,6 @@ class Gibbs():
 
             self.Z[d_idx][j_idx] = new_topic
 
-
-
-    def get_w_idx(self,d_idx, j_idx):
-        """ Helper function to get correct index for word frequency list"""
-        s = 0
-        doc_word_count = self.doc_word_counts[d_idx]
-        for i in range(self.vocab_len):
-            s+= doc_word_count[i]
-            if (j_idx + 1) <= s:
-                return i
 
     def calc_p(self,d_idx, j_idx, w_idx):
         """Helper function to calculate P vector"""
@@ -139,4 +161,10 @@ class Gibbs():
 
 
 if __name__ == '__main__':
-    print("Ran main")
+    n_docs = 1550 
+    n_docs = 200 
+    data = LoadData(n_docs)
+    gibbs = Gibbs(data, n_docs, 10, 10, 0.01, 0.01)
+    for d in range(gibbs.n_docs):
+        print(d)
+        assert(len(gibbs.tokens[d]) == gibbs.words_per_doc[d])
