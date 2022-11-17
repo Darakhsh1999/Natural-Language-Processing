@@ -1,5 +1,6 @@
 import time
 import nltk
+import sys
 import pandas as pd
 import numpy as np
 from nltk.corpus import stopwords
@@ -32,13 +33,14 @@ class Gibbs():
         self.words_per_doc = np.sum(self.doc_word_counts, axis= 1) # number of words in each document, len = nmb_docs
         self.total_tokens = sum(self.word_counts) # total tokens after processing
         self.Z = [np.random.randint(0, self.n_topics, s) for s in self.words_per_doc] # random topic for every word in every document
-
+        self.Q = np.zeros(self.n_topics)
 
         # Topic and Word counts
         self.topic_freq = np.zeros((self.n_docs, self.n_topics))
         self.word_freq = np.zeros((self.vocab_len, self.n_topics))
         self.tokens = self.InitializeTokens() # same shape as Z, but word_index instead of topic
         self.InitializeFrequencies()
+        self.word_freq_sum = np.sum(self.word_freq, axis= 0)
 
         self.SanityCheck()
 
@@ -66,6 +68,11 @@ class Gibbs():
         word = self.vocab[random_word_idx]
         assert(random_word_idx == self.vocab_hash.get(word))
 
+        # Word freq checks
+        assert(len(self.word_freq_sum) == self.n_topics)
+
+        # Q check
+        assert(len(self.Q) == self.n_topics)
 
     def InitializeTokens(self):
         tokens = []
@@ -112,71 +119,73 @@ class Gibbs():
 
         new_topic = self.Sample(P)
 
-        if new_topic != old_topic:
-            self.topic_freq[d_idx][old_topic]-=1
-            self.topic_freq[d_idx][new_topic]+=1
+        if new_topic != old_topic: # Correct frequency counts
 
-            self.word_freq[w_idx][old_topic]-=1
-            self.word_freq[w_idx][new_topic]+=1
+            self.topic_freq[d_idx][old_topic] -= 1
+            self.topic_freq[d_idx][new_topic] += 1
+
+            self.word_freq[w_idx][old_topic] -= 1
+            self.word_freq[w_idx][new_topic] += 1
+
+            self.word_freq_sum[old_topic] -= 1
+            self.word_freq_sum[new_topic] += 1
 
             self.Z[d_idx][j_idx] = new_topic
 
 
     def CalculateP(self,d_idx, j_idx, w_idx):
-        """Helper function to calculate P vector"""
 
         curr_val = self.Z[d_idx][j_idx]
-
-        n_d = self.topic_freq[d_idx]
         
+        # len = n_topics
+        n_d = self.topic_freq[d_idx]
         m_v = self.word_freq[w_idx]
-
-        m = sum(self.word_freq) # maybe optimze
-
-        Q = [0]*self.n_topics # use numpy array instead
+        m = self.word_freq_sum 
 
         for idx in range(self.n_topics):
             if idx != curr_val:
-                Q[idx] = self.CalculateQ(n_d[idx], m_v[idx], m[idx])
+                self.Q[idx] = self.CalculateQ(n_d[idx], m_v[idx], m[idx])
             else: 
-                Q[idx] = self.CalculateQ(n_d[idx]-1, m_v[idx]-1, m[idx]-1)
+                self.Q[idx] = self.CalculateQ(n_d[idx]-1, m_v[idx]-1, m[idx]-1)
 
-        q_sum = sum(Q)
+        q_sum = sum(self.Q)
 
-        P = [q/q_sum for q in Q]
+        P = (self.Q).copy()/q_sum
         return P
         
         
     def CalculateQ(self, n, m_v, m):
-        """Helper function to calculate Q vector"""
         return ((self.alpha + n)*(self.beta + m_v))/(self.beta * self.vocab_len + m)
 
 
     def Sample(self, P):
-        """Helper function to sample new Z_dj topic from given probability distibution P"""
+        ''' Sample new Z_dj topic from given probability distibution P '''
+
         r = np.random.rand()
         s = 0
         for idx in range(self.n_topics):
-            s+= P[idx]
-            if r < s:
-                return idx
-    
+            s += P[idx]
+            if (r < s): return idx
 
-    def simple_eval(self, topic, most_common_x):
+
+    def SimpleEval(self, topic, most_common_x):
+
         freqs = Counter()
 
         for d_idx in range(self.n_docs):
-                for j_idx in range(len(self.Z[d_idx])):
+                for j_idx in range(self.doc_word_counts[d_idx]):
                     if self.Z[d_idx][j_idx] == topic:
                         w_idx = self.tokens[d_idx][j_idx]
                         word = self.vocab[w_idx]
                         freqs[word] += 1
 
         return([word for word,freq in freqs.most_common(most_common_x)])
-    
 
+    def CoherenceScores(self):
+        pass    
 
 if __name__ == '__main__':
+
     t_start = time.time()
     n_docs = 1550 
     data = LoadData(n_docs)
@@ -185,6 +194,6 @@ if __name__ == '__main__':
     t_tot = t_end - t_start
     print("Load up time", t_tot)
     t_before = time.time()
-    gibbs.Run(1)
+    gibbs.Run(2)
     t_after = time.time()
     print("One iterations took", t_after - t_before)
