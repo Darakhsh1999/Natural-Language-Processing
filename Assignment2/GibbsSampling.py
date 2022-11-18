@@ -111,7 +111,7 @@ class Gibbs():
 
         old_topic = self.Z[d_idx][j_idx]
 
-        w_idx = self.tokens[d_idx][j_idx]
+        w_idx = self.tokens[d_idx][j_idx] # interger value from vocab
 
         P = self.CalculateP(d_idx, j_idx, w_idx)
 
@@ -222,10 +222,10 @@ if __name__ == '__main__':
     # Parameters
     n_docs = 1550 
     n_topics = 10
-    alpha = 0.1
-    beta = 0.1
-    n_iterations = 10
-    M = 20
+    alpha = 0.01
+    beta = 0.01
+    n_iterations = 100
+    M = 20 
 
     t1 = time.time()
     data = LoadData(n_docs)
