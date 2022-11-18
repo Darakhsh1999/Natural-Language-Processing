@@ -1,29 +1,30 @@
-Average coherence C = -132.18659962477602 
-Parameters: K = 10, alpha = 0.1, beta = 0.1, iterations = 10, documents = 1550 
-C_0 = -139.9320: ['said' 'pct' 'year' 'trade' 'japan' 'prices' 'april' 'tonnes' '000' 'may'
- 'price' 'official' 'government' 'last' 'export' '1987' 'market'
- 'agriculture' 'wheat' 'would'] 
-C_1 = -136.3316: ['said' 'billion' 'bank' 'dlrs' 'dollar' 'trade' 'deficit' 'would'
- 'government' 'west' 'year' 'interest' 'oil' 'growth' 'central' 'foreign'
- 'economic' 'surplus' 'budget' 'rate'] 
-C_2 = -90.2703: ['vs' 'mln' '000' 'cts' 'net' 'dlrs' 'loss' 'shr' 'qtr' 'lt' 'profit'
- 'revs' 'note' 'nine' 'mths' 'billion' '1986' 'year' 'sales' 'shrs'] 
-C_3 = -128.7581: ['said' 'lt' 'shares' 'company' 'stock' 'inc' 'dlrs' 'share' 'mln' 'pct'
- 'group' 'offer' 'corp' 'common' 'ltd' 'co' 'agreement' 'acquisition'
- 'stake' 'shareholders'] 
-C_4 = -127.6603: ['said' 'would' 'market' 'ec' 'rate' 'bank' 'one' 'rates' 'today' 'new'
- 'week' 'day' 'money' 'could' 'japanese' 'cut' 'system' 'also' 'pct'
- 'industry'] 
-C_5 = -138.7726: ['pct' 'year' 'mln' 'last' 'tonnes' '1986' 'month' '87' 'exports'
- 'production' '1985' 'demand' '000' 'stocks' 'imports' '1987' 'report'
- 'said' 'crop' 'rise'] 
-C_6 = -156.9531: ['said' 'dlrs' 'pct' 'lt' 'company' 'mln' 'inc' 'corp' 'first' 'year'
- 'quarter' 'co' '1986' 'new' 'gold' 'companies' 'business' 'group'
- 'chemical' 'three'] 
-C_7 = -146.1853: ['dlrs' 'mln' 'billion' 'cts' 'lt' 'oil' '000' 'company' 'crude' '50'
- 'net' 'price' '19' 'barrel' 'inc' 'co' 'corp' 'per' '25' 'loan'] 
-C_8 = -114.5954: ['vs' 'mln' 'net' 'cts' '000' 'dlrs' 'shr' 'billion' 'qtr' 'lt' 'revs'
- 'nine' 'loss' 'mths' '09' 'avg' '3rd' '87' 'shrs' 'profit'] 
-C_9 = -142.4071: ['said' 'oil' 'gulf' 'iran' 'united' 'last' 'would' 'could' 'iranian'
- 'minister' 'meeting' 'accord' 'attack' 'opec' 'states' 'two' 'foreign'
- 'german' 'traders' 'president'] 
+Average coherence C = -129.46726969118237 
+Parameters: K = 10, alpha = 0.1, beta = 0.1, iterations = 10, documents = 1550, vocab_len = 1633, n_tokens = 103320 
+C_5 = -90.24: ['vs' '000' 'cts' 'mln' 'net' 'shr' 'loss' 'dlrs' 'qtr' 'lt' 'revs'
+ 'profit' 'nine' 'mths' 'note' 'inc' 'avg' 'shrs' '3rd' 'oper'] 
+C_9 = -112.96: ['said' 'trade' 'japan' 'dollar' 'would' 'economic' 'ec' 'rates' 'market'
+ 'government' 'japanese' 'yen' 'meeting' 'foreign' 'west' 'countries'
+ 'could' 'currency' 'bank' 'minister'] 
+C_1 = -122.59: ['mln' 'vs' 'billion' 'net' 'dlrs' 'cts' '000' 'shr' 'lt' 'qtr' '1986'
+ 'stg' 'profit' 'sales' 'nine' 'assets' 'avg' 'shrs' '1st' '31'] 
+C_0 = -128.75: ['said' 'dlrs' 'billion' 'year' 'pct' 'first' 'bank' 'growth' 'quarter'
+ 'would' 'mln' '1987' 'deficit' '1986' 'expected' 'report' 'also' 'one'
+ 'current' '1988'] 
+C_3 = -130.77: ['tonnes' '87' 'nil' 'mln' '000' '1986' 'last' 'wheat' '09' 'exports'
+ '1987' 'stocks' 'imports' 'department' '1985' 'year' 'month' 'production'
+ '10' 'export'] 
+C_4 = -130.92: ['dlrs' 'mln' 'lt' 'shares' 'company' 'pct' 'corp' 'stock' 'said' 'inc'
+ 'share' 'group' 'common' '10' 'billion' 'outstanding' 'april' 'stake'
+ 'sale' 'shareholders'] 
+C_2 = -134.47: ['said' 'lt' 'offer' 'new' 'inc' 'shares' 'company' 'stock' 'share'
+ 'would' 'group' 'market' 'co' 'exchange' 'analysts' 'may' 'corp' 'tender'
+ 'merger' 'products'] 
+C_8 = -139.92: ['pct' 'year' 'said' 'week' 'rate' 'bank' 'market' 'april' 'average'
+ 'money' 'fed' 'day' 'system' 'three' 'last' 'dlrs' 'official' 'rates'
+ 'two' 'reserves'] 
+C_7 = -145.22: ['said' 'oil' 'prices' 'gulf' 'new' 'would' 'iran' 'crude' 'price' 'today'
+ 'one' 'iranian' '50' 'bid' 'spokesman' 'could' 'coffee' 'also' 'two'
+ 'production'] 
+C_6 = -158.83: ['said' 'lt' 'dlrs' 'pct' 'company' 'mln' 'oil' 'year' 'would' 'ltd' 'inc'
+ 'industry' 'corp' 'companies' 'last' 'based' 'national' 'agreement'
+ 'gold' 'operations'] 

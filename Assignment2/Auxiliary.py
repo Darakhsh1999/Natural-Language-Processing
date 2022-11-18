@@ -15,7 +15,3 @@ def LoadData(n_docs):
     docs  = [reuters.raw(doc_id) for doc_id in sampled_files] # List of raw document strings
 
     return docs
-
-
-if __name__ == '__main__':
-    data = LoadData(3)

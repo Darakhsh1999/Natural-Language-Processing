@@ -8,6 +8,8 @@ from Auxiliary import LoadData
 
 
 class Gibbs():
+    ''' Performs collapsed Gibbs sampling on the LDA posterior distribution'''
+
     def __init__(self, data, n_docs, n_topics, min_df= 10, alpha= 0.01, beta= 0.01):
 
         # Simulation parameters
@@ -80,11 +82,9 @@ class Gibbs():
                 if (self.vocab_hash.get(token) != None):
                     d_tokens.append(self.vocab_hash.get(token))
             tokens.append(d_tokens)
-            #d_list = [self.vocab_hash.get(token) for token in self.tokenizer(self.data[d]) if (self.vocab_hash.get(token) != None)]
         return tokens  
 
     def InitializeFrequencies(self):
-        
         for d in range(self.n_docs):
             for j in range(self.words_per_doc[d]):
 
@@ -98,8 +98,8 @@ class Gibbs():
 
 
     def Run(self, iterations):
-        
         ''' Runs iterations of z updates on all worlds '''
+
         for _ in trange(iterations):
             for d_idx in range(self.n_docs):
                 for j_idx in range(self.words_per_doc[d_idx]):
@@ -236,14 +236,16 @@ if __name__ == '__main__':
     C = gibbs.CoherenceScores(M= M)
     t4 = time.time()
 
-    print(f"Total time: {t4-t1:.3f} s")
-    print(f"Load data: {t2-t1:.3f} s")
-    print(f"Run Gibbs: {t3-t2:.3f} s")
-    print(f"Coherence scores: {t4-t3:.3f} s")
+    print(f"{'Total time':17}: {t4-t1:.3f} s")
+    print(f"{'Load data':17}: {t2-t1:.3f} s")
+    print(f"{'Run Gibbs':17}: {t3-t2:.3f} s")
+    print(f"{'Coherence scores':17}: {t4-t3:.3f} s")
 
     # Write to simple output file
+    sorted_C = np.argsort(-C)
     with open('output_words.txt', 'w') as filehandle:
         filehandle.write(f'Average coherence C = {C.mean()} \n')
-        filehandle.write(f'Parameters: K = {n_topics}, alpha = {alpha}, beta = {beta}, iterations = {n_iterations}, documents = {n_docs} \n')
-        for k, words in enumerate(gibbs.top_words):
-            filehandle.write(f'C_{k} = {C[k]:.4f}: {words} \n')
+        filehandle.write(f'Parameters: K = {n_topics}, alpha = {alpha}, beta = {beta}, iterations = {n_iterations},' +
+                         f' documents = {n_docs}, vocab_len = {gibbs.vocab_len}, n_tokens = {gibbs.total_tokens} \n')
+        for k in sorted_C:
+            filehandle.write(f'C_{k} = {C[k]:.2f}: {gibbs.top_words[k]} \n')
